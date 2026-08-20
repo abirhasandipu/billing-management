@@ -1,0 +1,1835 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>xCloud Billing Dashboard</title>
+  <style>
+    :root {
+      --bg: #f4f7fb;
+      --panel: #ffffff;
+      --panel-2: #f9fbfd;
+      --line: #dbe4ef;
+      --line-strong: #c7d4e5;
+      --text: #10233f;
+      --muted: #667892;
+      --muted-2: #8ea0b8;
+      --blue: #2673ff;
+      --blue-soft: #eef5ff;
+      --blue-selected: #e9f2ff;
+      --red: #df4d61;
+      --red-soft: #fff1f3;
+      --green: #1f9d64;
+      --green-soft: #ecfaf3;
+      --orange: #d97706;
+      --orange-soft: #fff6eb;
+      --purple: #7b61ff;
+      --purple-soft: #f2efff;
+      --gray: #516179;
+      --gray-soft: #eef2f7;
+      --amber: #c18a10;
+      --amber-soft: #fff9e8;
+      --shadow: 0 10px 30px rgba(16, 35, 63, 0.06);
+      --radius-xl: 22px;
+      --radius-lg: 18px;
+      --radius-md: 14px;
+      --radius-sm: 10px;
+      --header-height: 84px;
+      --drawer-width: 368px;
+      --font: "Inter", "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      font-family: var(--font);
+      background: var(--bg);
+      color: var(--text);
+    }
+
+    button, input, select, textarea {
+      font: inherit;
+    }
+
+    button {
+      border: 0;
+      background: none;
+      cursor: pointer;
+      color: inherit;
+    }
+
+    .page-shell {
+      min-height: 100vh;
+    }
+
+    .topbar {
+      height: var(--header-height);
+      background: rgba(255, 255, 255, 0.92);
+      border-bottom: 1px solid var(--line);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 28px;
+      position: sticky;
+      top: 0;
+      z-index: 30;
+      backdrop-filter: blur(16px);
+    }
+
+    .brand-row,
+    .toolbar-row,
+    .meta-row,
+    .summary-grid,
+    .nav-tabs,
+    .filter-bar,
+    .status-filters,
+    .content-layout,
+    .table-toolbar,
+    .pagination {
+      display: flex;
+      align-items: center;
+    }
+
+    .brand-row {
+      gap: 18px;
+      min-width: 0;
+      flex: 1;
+    }
+
+    .brand-mark {
+      width: 42px;
+      height: 42px;
+      border-radius: 14px;
+      background: linear-gradient(135deg, #1658d9, #4c94ff);
+      color: white;
+      display: grid;
+      place-items: center;
+      font-weight: 800;
+      letter-spacing: 0.03em;
+      box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.2);
+    }
+
+    .global-search {
+      flex: 1;
+      min-width: 320px;
+      background: var(--panel-2);
+      border: 1px solid var(--line);
+      border-radius: 16px;
+      height: 52px;
+      padding: 0 16px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      box-shadow: 0 1px 0 rgba(255, 255, 255, 0.7);
+    }
+
+    .global-search input,
+    .search-input input,
+    .note-composer textarea {
+      border: 0;
+      outline: none;
+      background: transparent;
+      width: 100%;
+      color: var(--text);
+    }
+
+    .shortcut {
+      font-size: 12px;
+      color: var(--muted);
+      padding: 5px 8px;
+      border-radius: 8px;
+      border: 1px solid var(--line);
+      background: white;
+      white-space: nowrap;
+    }
+
+    .toolbar-row {
+      gap: 10px;
+      margin-left: 24px;
+    }
+
+    .icon-btn,
+    .more-btn {
+      width: 40px;
+      height: 40px;
+      border-radius: 12px;
+      border: 1px solid var(--line);
+      background: white;
+      color: var(--muted);
+      position: relative;
+      display: grid;
+      place-items: center;
+    }
+
+    .dot-alert {
+      position: absolute;
+      top: 10px;
+      right: 10px;
+      width: 8px;
+      height: 8px;
+      border-radius: 999px;
+      background: var(--red);
+      box-shadow: 0 0 0 2px white;
+    }
+
+    .user-chip {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 8px 10px 8px 8px;
+      border-radius: 16px;
+      border: 1px solid var(--line);
+      background: white;
+    }
+
+    .avatar {
+      width: 38px;
+      height: 38px;
+      border-radius: 14px;
+      background: linear-gradient(135deg, #dfe9ff, #b8d1ff);
+      color: #1844a9;
+      display: grid;
+      place-items: center;
+      font-weight: 700;
+      flex: none;
+    }
+
+    .avatar.small {
+      width: 32px;
+      height: 32px;
+      border-radius: 12px;
+      font-size: 13px;
+    }
+
+    .user-meta strong,
+    .title-wrap h1,
+    .stat-value,
+    .drawer-total {
+      display: block;
+    }
+
+    .user-meta span,
+    .subtitle,
+    .helper,
+    .muted,
+    .table-subtext,
+    .drawer-meta,
+    .meta-label,
+    .footer-count,
+    .empty-state p,
+    .inline-note small {
+      color: var(--muted);
+      font-size: 13px;
+    }
+
+    .container {
+      padding: 28px;
+    }
+
+    .meta-row {
+      justify-content: space-between;
+      gap: 20px;
+      margin-bottom: 22px;
+    }
+
+    .title-wrap h1 {
+      margin: 0;
+      font-size: 31px;
+      line-height: 1.1;
+      letter-spacing: -0.03em;
+    }
+
+    .subtitle {
+      margin-top: 8px;
+      font-size: 15px;
+    }
+
+    .page-actions {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .date-range,
+    .ghost-button,
+    .primary-button,
+    .danger-ghost,
+    .chip,
+    .page-btn,
+    .rows-dropdown,
+    .text-btn {
+      border-radius: 14px;
+      border: 1px solid var(--line);
+      background: white;
+      height: 44px;
+      padding: 0 14px;
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      color: var(--text);
+    }
+
+    .text-btn {
+      background: transparent;
+      border-color: transparent;
+      color: var(--muted);
+    }
+
+    .ghost-button {
+      box-shadow: 0 1px 0 rgba(255, 255, 255, 0.8);
+    }
+
+    .primary-button {
+      background: var(--blue);
+      border-color: var(--blue);
+      color: white;
+    }
+
+    .danger-ghost {
+      border-color: rgba(223, 77, 97, 0.24);
+      color: #b53c4f;
+      background: #fff6f7;
+    }
+
+    .summary-grid {
+      gap: 16px;
+      margin-bottom: 18px;
+      align-items: stretch;
+    }
+
+    .summary-card {
+      flex: 1;
+      min-width: 0;
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: var(--radius-lg);
+      padding: 18px;
+      box-shadow: var(--shadow);
+      display: grid;
+      grid-template-columns: 56px 1fr;
+      gap: 16px;
+    }
+
+    .icon-box {
+      width: 56px;
+      height: 56px;
+      border-radius: 18px;
+      display: grid;
+      place-items: center;
+      color: white;
+      font-weight: 700;
+    }
+
+    .icon-purple { background: linear-gradient(135deg, #7157ff, #967bff); }
+    .icon-blue { background: linear-gradient(135deg, #1774ff, #59a2ff); }
+    .icon-green { background: linear-gradient(135deg, #099058, #42bd84); }
+    .icon-orange { background: linear-gradient(135deg, #dd7e10, #f1a548); }
+
+    .summary-label {
+      color: var(--muted);
+      font-size: 13px;
+      margin-bottom: 10px;
+    }
+
+    .stat-line {
+      display: flex;
+      align-items: baseline;
+      gap: 8px;
+      margin-bottom: 8px;
+      flex-wrap: wrap;
+    }
+
+    .stat-value {
+      font-size: 30px;
+      font-weight: 700;
+      letter-spacing: -0.04em;
+    }
+
+    .stat-subvalue {
+      color: var(--muted);
+      font-size: 15px;
+      font-weight: 600;
+    }
+
+    .trend {
+      font-size: 13px;
+      font-weight: 700;
+      padding: 4px 8px;
+      border-radius: 999px;
+    }
+
+    .trend.red { background: var(--red-soft); color: var(--red); }
+    .trend.green { background: var(--green-soft); color: var(--green); }
+
+    .nav-tabs {
+      gap: 8px;
+      margin-bottom: 18px;
+    }
+
+    .tab-btn {
+      height: 46px;
+      border-radius: 14px;
+      padding: 0 16px;
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      color: var(--muted);
+      border: 1px solid transparent;
+    }
+
+    .tab-btn.active {
+      background: white;
+      color: var(--blue);
+      border-color: rgba(38, 115, 255, 0.16);
+      box-shadow: var(--shadow);
+    }
+
+    .count-badge {
+      min-width: 22px;
+      height: 22px;
+      border-radius: 999px;
+      padding: 0 8px;
+      display: inline-grid;
+      place-items: center;
+      background: #ffecef;
+      color: var(--red);
+      font-size: 12px;
+      font-weight: 700;
+    }
+
+    .content-wrap {
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: var(--radius-xl);
+      box-shadow: var(--shadow);
+      overflow: hidden;
+    }
+
+    .panel-header {
+      padding: 20px;
+      border-bottom: 1px solid #edf2f8;
+      background: linear-gradient(180deg, rgba(249, 251, 253, 0.8), rgba(255, 255, 255, 0.95));
+    }
+
+    .filter-bar,
+    .table-toolbar {
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+
+    .search-input,
+    .select-input {
+      height: 46px;
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      background: white;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 0 14px;
+      color: var(--muted);
+    }
+
+    .search-input {
+      flex: 1;
+      min-width: 300px;
+    }
+
+    .select-input {
+      min-width: 146px;
+      justify-content: space-between;
+    }
+
+    .status-filters {
+      gap: 10px;
+      margin-top: 16px;
+      flex-wrap: wrap;
+    }
+
+    .chip {
+      height: 38px;
+      border-radius: 999px;
+      font-size: 13px;
+      padding: 0 14px;
+      color: var(--text);
+    }
+
+    .chip.selected {
+      border-color: rgba(38, 115, 255, 0.26);
+      box-shadow: inset 0 0 0 1px rgba(38, 115, 255, 0.12);
+    }
+
+    .chip-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 999px;
+    }
+
+    .chip.unpaid { background: #fff7f8; }
+    .chip.paid { background: #f0faf4; }
+    .chip.suspended { background: #fff7ef; }
+    .chip.terminated { background: #f3f5f8; }
+    .chip.grace { background: #fff8e9; }
+    .chip.resolved { background: #f4f0ff; }
+    .chip.removed { background: #f2f6fa; }
+
+    .content-layout {
+      align-items: stretch;
+      min-height: 720px;
+    }
+
+    .table-pane {
+      flex: 1;
+      min-width: 0;
+      border-right: 1px solid #edf2f8;
+    }
+
+    .table-wrap {
+      overflow: auto;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+
+    thead th {
+      text-align: left;
+      font-size: 12px;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+      color: var(--muted);
+      font-weight: 700;
+      background: #fbfcfe;
+      padding: 14px 18px;
+      border-bottom: 1px solid #edf2f8;
+      white-space: nowrap;
+    }
+
+    tbody td {
+      padding: 16px 18px;
+      border-bottom: 1px solid #edf2f8;
+      vertical-align: top;
+      font-size: 14px;
+    }
+
+    tbody tr {
+      cursor: pointer;
+    }
+
+    tbody tr:hover {
+      background: #fafcff;
+    }
+
+    tbody tr.selected {
+      background: var(--blue-selected);
+    }
+
+    .checkbox {
+      width: 18px;
+      height: 18px;
+      border-radius: 6px;
+      border: 1px solid var(--line-strong);
+      display: inline-block;
+      background: white;
+    }
+
+    .team-cell strong,
+    .amount,
+    .team-id,
+    .invoice-id {
+      font-weight: 700;
+    }
+
+    .team-id,
+    .invoice-id {
+      color: #234067;
+      font-feature-settings: "tnum";
+      white-space: nowrap;
+    }
+
+    .status-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      height: 30px;
+      padding: 0 11px;
+      border-radius: 999px;
+      font-size: 12px;
+      font-weight: 700;
+      border: 1px solid transparent;
+      white-space: nowrap;
+    }
+
+    .status-badge.unpaid { background: var(--red-soft); color: var(--red); }
+    .status-badge.paid { background: var(--green-soft); color: var(--green); }
+    .status-badge.suspended { background: var(--orange-soft); color: var(--orange); }
+    .status-badge.terminated { background: var(--gray-soft); color: var(--gray); }
+    .status-badge.grace { background: var(--amber-soft); color: var(--amber); }
+    .status-badge.resolved { background: var(--purple-soft); color: var(--purple); }
+    .status-badge.removed { background: #eff4f7; color: #617486; }
+
+    .table-actions {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      position: relative;
+    }
+
+    .view-btn {
+      height: 34px;
+      padding: 0 12px;
+      border-radius: 10px;
+      border: 1px solid var(--line);
+      background: white;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 13px;
+      color: #27405f;
+    }
+
+    .menu-panel {
+      position: absolute;
+      top: calc(100% + 8px);
+      right: 0;
+      width: 230px;
+      background: white;
+      border: 1px solid var(--line);
+      border-radius: 16px;
+      box-shadow: 0 20px 40px rgba(16, 35, 63, 0.14);
+      padding: 10px;
+      z-index: 20;
+      display: none;
+    }
+
+    .menu-panel.open {
+      display: block;
+    }
+
+    .menu-panel button {
+      width: 100%;
+      height: 38px;
+      border-radius: 10px;
+      text-align: left;
+      padding: 0 10px;
+      color: #243e62;
+    }
+
+    .menu-panel button:hover:not(:disabled) {
+      background: #f5f8fc;
+    }
+
+    .menu-panel button:disabled {
+      color: #a2b0c3;
+      cursor: not-allowed;
+    }
+
+    .menu-divider {
+      height: 1px;
+      background: #edf2f8;
+      margin: 8px 0;
+    }
+
+    .menu-danger {
+      color: #c83b50;
+    }
+
+    .table-footer {
+      padding: 16px 20px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 14px;
+      flex-wrap: wrap;
+    }
+
+    .pagination {
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+
+    .page-btn.active {
+      background: var(--blue);
+      border-color: var(--blue);
+      color: white;
+    }
+
+    .drawer {
+      width: var(--drawer-width);
+      background: white;
+      display: flex;
+      flex-direction: column;
+      max-height: 100%;
+    }
+
+    .drawer-header,
+    .drawer-body,
+    .note-composer {
+      padding: 20px;
+    }
+
+    .drawer-header {
+      border-bottom: 1px solid #edf2f8;
+      background: #fcfdff;
+    }
+
+    .drawer-heading {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 18px;
+    }
+
+    .profile-card {
+      padding: 16px;
+      border: 1px solid var(--line);
+      border-radius: 18px;
+      background: linear-gradient(180deg, #ffffff, #f9fbfd);
+    }
+
+    .profile-row {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 12px;
+    }
+
+    .drawer-tabs {
+      display: flex;
+      gap: 20px;
+      padding: 0 20px;
+      border-bottom: 1px solid #edf2f8;
+    }
+
+    .drawer-tab {
+      position: relative;
+      height: 48px;
+      display: inline-flex;
+      align-items: center;
+      color: var(--muted);
+      font-weight: 600;
+    }
+
+    .drawer-tab.active {
+      color: var(--blue);
+    }
+
+    .drawer-tab.active::after {
+      content: "";
+      position: absolute;
+      left: 0;
+      right: 0;
+      bottom: -1px;
+      height: 2px;
+      border-radius: 2px;
+      background: var(--blue);
+    }
+
+    .drawer-body {
+      flex: 1;
+      overflow: auto;
+      display: flex;
+      flex-direction: column;
+      gap: 18px;
+    }
+
+    .detail-section,
+    .invoice-card,
+    .note-bubble,
+    .summary-inline {
+      border: 1px solid var(--line);
+      border-radius: 16px;
+      background: white;
+    }
+
+    .detail-section {
+      padding: 16px;
+    }
+
+    .meta-list {
+      display: grid;
+      gap: 14px;
+    }
+
+    .meta-item {
+      display: flex;
+      align-items: flex-start;
+      gap: 12px;
+    }
+
+    .meta-icon {
+      width: 36px;
+      height: 36px;
+      border-radius: 12px;
+      background: #f3f7fc;
+      color: #5d6f8c;
+      display: grid;
+      place-items: center;
+      flex: none;
+    }
+
+    .stack-actions {
+      display: grid;
+      gap: 10px;
+      margin-top: 14px;
+    }
+
+    .summary-inline {
+      padding: 14px;
+      background: #fbfdff;
+      display: grid;
+      gap: 8px;
+    }
+
+    .invoice-card {
+      padding: 14px;
+      display: grid;
+      gap: 12px;
+      background: linear-gradient(180deg, #ffffff, #fbfcfe);
+    }
+
+    .invoice-top,
+    .invoice-actions,
+    .note-header,
+    .composer-actions,
+    .drawer-empty {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+    }
+
+    .invoice-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 10px;
+    }
+
+    .mini-label {
+      color: var(--muted);
+      font-size: 12px;
+      margin-bottom: 4px;
+    }
+
+    .timeline {
+      display: grid;
+      gap: 14px;
+    }
+
+    .note-item {
+      display: grid;
+      grid-template-columns: 36px 1fr;
+      gap: 12px;
+      align-items: start;
+    }
+
+    .note-bubble {
+      padding: 12px 14px;
+      background: #fbfdff;
+    }
+
+    .note-bubble.system {
+      background: #f5f8fc;
+      border-style: dashed;
+    }
+
+    .status-pill {
+      display: inline-flex;
+      height: 24px;
+      align-items: center;
+      padding: 0 8px;
+      border-radius: 999px;
+      background: #edf4ff;
+      color: var(--blue);
+      font-size: 11px;
+      font-weight: 700;
+      margin-top: 8px;
+    }
+
+    .note-composer {
+      border-top: 1px solid #edf2f8;
+      background: white;
+      position: sticky;
+      bottom: 0;
+    }
+
+    .note-composer.hidden {
+      display: none;
+    }
+
+    .composer-box {
+      border: 1px solid var(--line);
+      border-radius: 18px;
+      padding: 14px;
+      background: #fbfdff;
+    }
+
+    .composer-box textarea {
+      min-height: 84px;
+      resize: vertical;
+    }
+
+    .private-note {
+      color: var(--muted);
+      font-size: 12px;
+      margin-bottom: 10px;
+    }
+
+    .tab-panel {
+      display: none;
+    }
+
+    .tab-panel.active {
+      display: block;
+    }
+
+    .empty-state,
+    .loading-state,
+    .no-results-state {
+      padding: 48px 20px;
+      text-align: center;
+    }
+
+    .empty-state h3,
+    .loading-state h3,
+    .no-results-state h3 {
+      margin: 0 0 8px;
+      font-size: 20px;
+    }
+
+    .spinner {
+      width: 34px;
+      height: 34px;
+      border: 3px solid #dce7f5;
+      border-top-color: var(--blue);
+      border-radius: 999px;
+      margin: 0 auto 14px;
+      animation: spin 1s linear infinite;
+    }
+
+    .bills-panel,
+    .reports-panel,
+    .servers-panel {
+      padding: 20px;
+    }
+
+    .placeholder-grid {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 16px;
+      margin-top: 18px;
+    }
+
+    .placeholder-card {
+      border: 1px solid var(--line);
+      border-radius: 18px;
+      padding: 18px;
+      background: white;
+      min-height: 160px;
+    }
+
+    .sr-only {
+      position: absolute;
+      width: 1px;
+      height: 1px;
+      padding: 0;
+      margin: -1px;
+      overflow: hidden;
+      clip: rect(0, 0, 0, 0);
+      border: 0;
+    }
+
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+
+    @media (max-width: 1280px) {
+      .content-layout {
+        flex-direction: column;
+      }
+
+      .table-pane {
+        border-right: 0;
+        border-bottom: 1px solid #edf2f8;
+      }
+
+      .drawer {
+        width: 100%;
+      }
+    }
+
+    @media (max-width: 960px) {
+      .topbar,
+      .meta-row,
+      .summary-grid {
+        flex-direction: column;
+        align-items: stretch;
+      }
+
+      .toolbar-row {
+        margin-left: 0;
+        justify-content: space-between;
+      }
+
+      .global-search {
+        min-width: 0;
+      }
+
+      .container {
+        padding: 18px;
+      }
+
+      .summary-card {
+        grid-template-columns: 1fr;
+      }
+
+      .placeholder-grid,
+      .invoice-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="page-shell">
+    <header class="topbar">
+      <div class="brand-row">
+        <div class="brand-mark">xC</div>
+        <label class="global-search" aria-label="Global search">
+          <span aria-hidden="true">🔎</span>
+          <input type="text" placeholder="Search teams, users, invoices..." />
+          <span class="shortcut">⌘K</span>
+        </label>
+      </div>
+      <div class="toolbar-row">
+        <button class="icon-btn" aria-label="Help">?</button>
+        <button class="icon-btn" aria-label="Notifications">
+          🔔
+          <span class="dot-alert"></span>
+        </button>
+        <button class="user-chip" aria-label="User account">
+          <span class="avatar">D</span>
+          <span class="user-meta">
+            <strong>Dipu</strong>
+            <span>Admin</span>
+          </span>
+          <span aria-hidden="true">⌄</span>
+        </button>
+      </div>
+    </header>
+
+    <main class="container">
+      <section class="meta-row">
+        <div class="title-wrap">
+          <h1>Billing Dashboard</h1>
+          <div class="subtitle">Overview of teams, invoices and payments</div>
+        </div>
+        <div class="page-actions">
+          <button class="date-range">📅 <span>Aug 1, 2025 - Aug 31, 2025</span> <span>⌄</span></button>
+          <button class="ghost-button">⤓ <span>Export Report</span></button>
+        </div>
+      </section>
+
+      <section class="summary-grid" aria-label="Billing summary cards">
+        <article class="summary-card">
+          <div class="icon-box icon-purple">⚠</div>
+          <div>
+            <div class="summary-label">Teams with Unpaid Bills</div>
+            <div class="stat-line">
+              <span class="stat-value">12</span>
+              <span class="stat-subvalue">/ 48 teams</span>
+              <span class="trend red">-2</span>
+            </div>
+            <div class="helper">Teams that need attention</div>
+          </div>
+        </article>
+        <article class="summary-card">
+          <div class="icon-box icon-blue">$</div>
+          <div>
+            <div class="summary-label">Total Unpaid Amount</div>
+            <div class="stat-line">
+              <span class="stat-value">$572.00</span>
+              <span class="trend red">-18%</span>
+            </div>
+            <div class="helper">Across 29 invoices</div>
+          </div>
+        </article>
+        <article class="summary-card">
+          <div class="icon-box icon-green">✓</div>
+          <div>
+            <div class="summary-label">Invoices This Month</div>
+            <div class="stat-line">
+              <span class="stat-value">86</span>
+              <span class="trend green">12%</span>
+            </div>
+            <div class="helper">All generated invoices</div>
+          </div>
+        </article>
+        <article class="summary-card">
+          <div class="icon-box icon-orange">↺</div>
+          <div>
+            <div class="summary-label">Temporarily Resolved</div>
+            <div class="stat-line">
+              <span class="stat-value">6</span>
+            </div>
+            <div class="helper">Auto-remove next month</div>
+          </div>
+        </article>
+      </section>
+
+      <nav class="nav-tabs" aria-label="Billing sections">
+        <button class="tab-btn active" data-main-tab="teams">Teams <span class="count-badge">29</span></button>
+        <button class="tab-btn" data-main-tab="bills">Bills</button>
+        <button class="tab-btn" data-main-tab="servers">Servers</button>
+        <button class="tab-btn" data-main-tab="reports">Reports</button>
+      </nav>
+
+      <section class="content-wrap">
+        <div class="tab-panel active" data-main-panel="teams">
+          <div class="panel-header">
+            <div class="filter-bar">
+              <label class="search-input">
+                <span aria-hidden="true">🔎</span>
+                <input id="teamSearch" type="text" placeholder="Search by team name, team ID, user, invoice ID, email..." />
+              </label>
+              <button class="select-input">Status <span class="muted" id="statusLabel">All Statuses</span> <span>⌄</span></button>
+              <button class="select-input">Filter By <span class="muted">Months</span> <span>⌄</span></button>
+              <button class="select-input">Bill Type <span class="muted">All Types</span> <span>⌄</span></button>
+              <button class="ghost-button">☰ <span>More Filters</span></button>
+              <button class="text-btn" id="clearFilters">Clear</button>
+            </div>
+            <div class="status-filters" id="statusFilters"></div>
+          </div>
+
+          <div class="content-layout">
+            <div class="table-pane">
+              <div class="table-wrap">
+                <table>
+                  <thead>
+                    <tr>
+                      <th><span class="checkbox" aria-hidden="true"></span></th>
+                      <th>Team ID</th>
+                      <th>Team</th>
+                      <th>Invoices</th>
+                      <th>Status</th>
+                      <th>Agent</th>
+                      <th>Total Unpaid</th>
+                      <th>Unpaid Since</th>
+                      <th>Note</th>
+                      <th>Actions</th>
+                    </tr>
+                  </thead>
+                  <tbody id="teamTableBody"></tbody>
+                </table>
+              </div>
+              <div id="teamTableFeedback"></div>
+              <div class="table-footer">
+                <div class="footer-count" id="resultsCount">Showing 1-7 of 29 results</div>
+                <div class="pagination">
+                  <button class="page-btn">Previous</button>
+                  <button class="page-btn active">1</button>
+                  <button class="page-btn">2</button>
+                  <button class="page-btn">3</button>
+                  <button class="page-btn">Next</button>
+                  <button class="rows-dropdown">10 / page ⌄</button>
+                </div>
+              </div>
+            </div>
+
+            <aside class="drawer" aria-label="Team details drawer">
+              <div class="drawer-header">
+                <div class="drawer-heading">
+                  <strong>Team Details</strong>
+                  <button class="icon-btn" id="closeDrawer" aria-label="Close details drawer">×</button>
+                </div>
+                <div class="profile-card" id="profileCard"></div>
+              </div>
+              <div class="drawer-tabs">
+                <button class="drawer-tab active" data-drawer-tab="overview">Overview</button>
+                <button class="drawer-tab" data-drawer-tab="invoices">Invoices (3)</button>
+                <button class="drawer-tab" data-drawer-tab="notes">Notes</button>
+              </div>
+              <div class="drawer-body">
+                <section class="tab-panel active" data-drawer-panel="overview" id="overviewPanel"></section>
+                <section class="tab-panel" data-drawer-panel="invoices" id="invoicesPanel"></section>
+                <section class="tab-panel" data-drawer-panel="notes" id="notesPanel"></section>
+              </div>
+              <div class="note-composer">
+                <div class="private-note">Private note. Visible only to xCloud team members.</div>
+                <div class="composer-box">
+                  <textarea placeholder="Write an internal note..."></textarea>
+                  <div class="composer-actions">
+                    <div>
+                      <button class="text-btn">📎 Attach</button>
+                      <button class="text-btn">@ Mention teammate</button>
+                    </div>
+                    <button class="primary-button">Send</button>
+                  </div>
+                </div>
+              </div>
+            </aside>
+          </div>
+        </div>
+
+        <div class="tab-panel" data-main-panel="bills">
+          <div class="panel-header">
+            <div class="filter-bar">
+              <label class="search-input">
+                <span aria-hidden="true">🔎</span>
+                <input type="text" placeholder="Search by invoice ID, team ID, team name or email..." />
+              </label>
+              <button class="select-input">Status <span class="muted">All Statuses</span> <span>⌄</span></button>
+              <button class="select-input">Billing Month <span class="muted">Aug 2025</span> <span>⌄</span></button>
+              <button class="select-input">Amount <span class="muted">Any</span> <span>⌄</span></button>
+              <button class="select-input">Assigned Agent <span class="muted">All Agents</span> <span>⌄</span></button>
+              <button class="select-input">Due Date <span class="muted">Any</span> <span>⌄</span></button>
+              <button class="ghost-button">⤓ <span>Export</span></button>
+            </div>
+          </div>
+          <div class="bills-panel">
+            <table>
+              <thead>
+                <tr>
+                  <th><span class="checkbox"></span></th>
+                  <th>Invoice ID</th>
+                  <th>Team ID</th>
+                  <th>Team</th>
+                  <th>Billing Period</th>
+                  <th>Invoice Date</th>
+                  <th>Due Date</th>
+                  <th>Amount</th>
+                  <th>Status</th>
+                  <th>Assigned Agent</th>
+                  <th>Actions</th>
+                </tr>
+              </thead>
+              <tbody id="billsTableBody"></tbody>
+            </table>
+          </div>
+        </div>
+
+        <div class="tab-panel" data-main-panel="servers">
+          <div class="servers-panel">
+            <div class="empty-state">
+              <h3>Server billing relationships</h3>
+              <p>Track connected teams, server health, billing exposure, and service dependencies from this tab.</p>
+            </div>
+            <div class="placeholder-grid">
+              <div class="placeholder-card">
+                <strong>Linked Servers</strong>
+                <p class="muted">Teams mapped to active server contracts, overdue bills, and service flags.</p>
+              </div>
+              <div class="placeholder-card">
+                <strong>Suspension Risks</strong>
+                <p class="muted">Surface servers connected to suspended or grace-period teams before service impact escalates.</p>
+              </div>
+              <div class="placeholder-card">
+                <strong>Removal Queue</strong>
+                <p class="muted">Review temporarily resolved and removed-next-month accounts with infrastructure owners.</p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="tab-panel" data-main-panel="reports">
+          <div class="reports-panel">
+            <div class="empty-state">
+              <h3>Billing reports and exports</h3>
+              <p>Summaries, downloadable reports, and operational trends would appear here using the same card and table patterns.</p>
+            </div>
+            <div class="placeholder-grid">
+              <div class="placeholder-card">
+                <strong>Monthly Collections</strong>
+                <p class="muted">Track paid versus unpaid performance with exportable snapshots for finance and support.</p>
+              </div>
+              <div class="placeholder-card">
+                <strong>Agent Workload</strong>
+                <p class="muted">Measure assigned agent queues, reminder counts, and resolution time by billing status.</p>
+              </div>
+              <div class="placeholder-card">
+                <strong>Status Movement</strong>
+                <p class="muted">Monitor changes across unpaid, suspended, temporarily resolved, and removed accounts.</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <script>
+    const teams = [
+      {
+        id: "#129496",
+        name: "xC Infinity",
+        email: "team@xcinfinity.com",
+        invoices: 3,
+        status: "Unpaid",
+        statusKey: "unpaid",
+        agent: "Dipu",
+        totalUnpaid: "$572.00",
+        unpaidSince: "Aug 12, 2025",
+        overdueDays: 18,
+        note: "None",
+        initials: "XI",
+        managedBy: "Dipu",
+        lastInvoice: "#INV-129496-03",
+        linkedServers: 2,
+        invoicesList: [
+          { id: "#INV-129496-03", period: "Aug 2025", created: "Aug 1, 2025", due: "Aug 12, 2025", overdue: 18, amount: "$220.00", status: "Unpaid", statusKey: "unpaid", service: "Primary Cloud Server" },
+          { id: "#INV-129496-02", period: "Jul 2025", created: "Jul 1, 2025", due: "Jul 12, 2025", overdue: 49, amount: "$180.00", status: "Unpaid", statusKey: "unpaid", service: "Backup Storage Node" },
+          { id: "#INV-129496-01", period: "Jun 2025", created: "Jun 1, 2025", due: "Jun 12, 2025", overdue: 79, amount: "$172.00", status: "Unpaid", statusKey: "unpaid", service: "Managed DNS Cluster" }
+        ],
+        notes: [
+          { author: "Dipu", role: "Admin", time: "Aug 18, 2025 at 10:24 AM", message: "Customer requested a few more days to complete the payment.", type: "agent", initials: "D" },
+          { author: "Mahbub", role: "Billing Agent", time: "Aug 19, 2025 at 2:40 PM", message: "Reminder email sent to the account owner.", type: "agent", initials: "M" },
+          { author: "System", role: "Automation", time: "Aug 19, 2025 at 2:41 PM", message: "Status changed from Unpaid to Grace Period.", type: "system", statusLabel: "Status change" },
+          { author: "Dipu", role: "Admin", time: "Aug 20, 2025 at 9:05 AM", message: "Customer did not respond. Follow up again on Aug 30.", type: "agent", edited: true, initials: "D" }
+        ],
+        actions: { markPaid: true, grace: true, resolve: true, restore: false, suspend: true, remove: true, terminate: true }
+      },
+      {
+        id: "#129405",
+        name: "Galaxy Bay",
+        email: "admin@galaxybay.com",
+        invoices: 1,
+        status: "Suspended",
+        statusKey: "suspended",
+        agent: "Mahbub",
+        totalUnpaid: "$96.00",
+        unpaidSince: "Jul 22, 2025",
+        overdueDays: 39,
+        note: "Server inactive",
+        initials: "GB",
+        managedBy: "Mahbub",
+        lastInvoice: "#INV-129405-01",
+        linkedServers: 1,
+        invoicesList: [
+          { id: "#INV-129405-01", period: "Jul 2025", created: "Jul 1, 2025", due: "Jul 22, 2025", overdue: 39, amount: "$96.00", status: "Suspended", statusKey: "suspended", service: "Shared VM Node" }
+        ],
+        notes: [
+          { author: "System", role: "Automation", time: "Aug 14, 2025 at 8:20 AM", message: "Status changed from Grace Period to Suspended.", type: "system", statusLabel: "Suspended" },
+          { author: "Mahbub", role: "Billing Agent", time: "Aug 14, 2025 at 9:14 AM", message: "Server inactive", type: "agent", initials: "M" }
+        ],
+        actions: { markPaid: true, grace: true, resolve: true, restore: true, suspend: false, remove: true, terminate: true }
+      },
+      {
+        id: "#129398",
+        name: "Creative Studio",
+        email: "hello@creativestudio.io",
+        invoices: 2,
+        status: "Grace Period",
+        statusKey: "grace",
+        agent: "Nirob",
+        totalUnpaid: "$124.00",
+        unpaidSince: "Aug 1, 2025",
+        overdueDays: 29,
+        note: "Grace period until Aug 31, 2025",
+        initials: "CS",
+        managedBy: "Nirob",
+        lastInvoice: "#INV-129398-02",
+        linkedServers: 3,
+        invoicesList: [
+          { id: "#INV-129398-02", period: "Aug 2025", created: "Aug 1, 2025", due: "Aug 1, 2025", overdue: 29, amount: "$64.00", status: "Grace Period", statusKey: "grace", service: "Media Rendering Node" },
+          { id: "#INV-129398-01", period: "Jul 2025", created: "Jul 1, 2025", due: "Jul 1, 2025", overdue: 60, amount: "$60.00", status: "Grace Period", statusKey: "grace", service: "Archive Storage" }
+        ],
+        notes: [
+          { author: "Nirob", role: "Billing Agent", time: "Aug 10, 2025 at 11:12 AM", message: "Grace period until Aug 31, 2025", type: "agent", initials: "N" }
+        ],
+        actions: { markPaid: true, grace: false, resolve: true, restore: true, suspend: true, remove: true, terminate: true }
+      },
+      {
+        id: "#129372",
+        name: "Pixel Works",
+        email: "support@pixelworks.co",
+        invoices: 1,
+        status: "Paid",
+        statusKey: "paid",
+        agent: "Sadat",
+        totalUnpaid: "$0.00",
+        unpaidSince: "Aug 3, 2025",
+        overdueDays: 0,
+        note: "-",
+        initials: "PW",
+        managedBy: "Sadat",
+        lastInvoice: "#INV-129372-01",
+        linkedServers: 2,
+        invoicesList: [
+          { id: "#INV-129372-01", period: "Aug 2025", created: "Aug 1, 2025", due: "Aug 3, 2025", overdue: 0, amount: "$0.00", status: "Paid", statusKey: "paid", service: "Core API Cluster" }
+        ],
+        notes: [
+          { author: "System", role: "Automation", time: "Aug 3, 2025 at 1:10 PM", message: "Invoice paid successfully.", type: "system", statusLabel: "Paid" }
+        ],
+        actions: { markPaid: false, grace: false, resolve: false, restore: false, suspend: false, remove: true, terminate: true }
+      },
+      {
+        id: "#129355",
+        name: "Alpha Traders",
+        email: "contact@alphatraders.com",
+        invoices: 4,
+        status: "Terminated",
+        statusKey: "terminated",
+        agent: "Nayeem",
+        totalUnpaid: "$0.00",
+        unpaidSince: "May 19, 2025",
+        overdueDays: 0,
+        note: "Account terminated",
+        initials: "AT",
+        managedBy: "Nayeem",
+        lastInvoice: "#INV-129355-04",
+        linkedServers: 0,
+        invoicesList: [
+          { id: "#INV-129355-04", period: "May 2025", created: "May 1, 2025", due: "May 19, 2025", overdue: 0, amount: "$0.00", status: "Terminated", statusKey: "terminated", service: "Former Dedicated Node" }
+        ],
+        notes: [
+          { author: "System", role: "Automation", time: "May 20, 2025 at 5:44 PM", message: "Account terminated", type: "system", statusLabel: "Terminated" }
+        ],
+        actions: { markPaid: false, grace: false, resolve: false, restore: true, suspend: false, remove: false, terminate: false }
+      },
+      {
+        id: "#129330",
+        name: "Demo Team",
+        email: "demo@example.com",
+        invoices: 2,
+        status: "Temporarily Resolved",
+        statusKey: "resolved",
+        agent: "Jan-Jan",
+        totalUnpaid: "$206.00",
+        unpaidSince: "Aug 5, 2025",
+        overdueDays: 25,
+        note: "Auto-remove next month",
+        initials: "DT",
+        managedBy: "Jan-Jan",
+        lastInvoice: "#INV-129330-02",
+        linkedServers: 1,
+        invoicesList: [
+          { id: "#INV-129330-02", period: "Aug 2025", created: "Aug 1, 2025", due: "Aug 5, 2025", overdue: 25, amount: "$106.00", status: "Temporarily Resolved", statusKey: "resolved", service: "Trial App Server" },
+          { id: "#INV-129330-01", period: "Jul 2025", created: "Jul 1, 2025", due: "Jul 5, 2025", overdue: 56, amount: "$100.00", status: "Temporarily Resolved", statusKey: "resolved", service: "Demo Storage Node" }
+        ],
+        notes: [
+          { author: "Dipu", role: "Admin", time: "Aug 11, 2025 at 10:55 AM", message: "Account temporarily resolved after support escalation.", type: "agent", initials: "D" }
+        ],
+        actions: { markPaid: true, grace: true, resolve: false, restore: true, suspend: true, remove: true, terminate: true }
+      },
+      {
+        id: "#129312",
+        name: "Old Project Team",
+        email: "old@sample.com",
+        invoices: 1,
+        status: "Removed",
+        statusKey: "removed",
+        agent: "System",
+        totalUnpaid: "$0.00",
+        unpaidSince: "Jun 15, 2025",
+        overdueDays: 0,
+        note: "Removed next month",
+        initials: "OP",
+        managedBy: "System",
+        lastInvoice: "#INV-129312-01",
+        linkedServers: 0,
+        invoicesList: [
+          { id: "#INV-129312-01", period: "Jun 2025", created: "Jun 1, 2025", due: "Jun 15, 2025", overdue: 0, amount: "$0.00", status: "Removed", statusKey: "removed", service: "Legacy Sandbox" }
+        ],
+        notes: [
+          { author: "System", role: "Automation", time: "Jul 30, 2025 at 7:32 PM", message: "Removed next month", type: "system", statusLabel: "Removed" }
+        ],
+        actions: { markPaid: false, grace: false, resolve: false, restore: true, suspend: false, remove: false, terminate: false }
+      }
+    ];
+
+    const statusChips = [
+      { label: "All", key: "all", className: "", dot: "#8ea0b8" },
+      { label: "Unpaid", key: "unpaid", className: "unpaid", dot: "#df4d61" },
+      { label: "Paid", key: "paid", className: "paid", dot: "#1f9d64" },
+      { label: "Suspended", key: "suspended", className: "suspended", dot: "#d97706" },
+      { label: "Terminated", key: "terminated", className: "terminated", dot: "#516179" },
+      { label: "Grace Period", key: "grace", className: "grace", dot: "#c18a10" },
+      { label: "Temporarily Resolved", key: "resolved", className: "resolved", dot: "#7b61ff" },
+      { label: "Removed (Next Month)", key: "removed", className: "removed", dot: "#72859a" }
+    ];
+
+    let selectedStatus = "all";
+    let selectedTeamId = teams[0].id;
+    let selectedDrawerTab = "overview";
+    let searchQuery = "";
+
+    const teamTableBody = document.getElementById("teamTableBody");
+    const billsTableBody = document.getElementById("billsTableBody");
+    const statusFilters = document.getElementById("statusFilters");
+    const teamSearch = document.getElementById("teamSearch");
+    const resultsCount = document.getElementById("resultsCount");
+    const statusLabel = document.getElementById("statusLabel");
+    const profileCard = document.getElementById("profileCard");
+    const overviewPanel = document.getElementById("overviewPanel");
+    const invoicesPanel = document.getElementById("invoicesPanel");
+    const notesPanel = document.getElementById("notesPanel");
+    const feedback = document.getElementById("teamTableFeedback");
+    const drawerComposer = document.querySelector(".note-composer");
+
+    function filteredTeams() {
+      return teams.filter((team) => {
+        const matchesStatus = selectedStatus === "all" || team.statusKey === selectedStatus;
+        const haystack = [team.id, team.name, team.email, team.agent, team.lastInvoice].join(" ").toLowerCase();
+        const matchesSearch = haystack.includes(searchQuery.toLowerCase());
+        return matchesStatus && matchesSearch;
+      });
+    }
+
+    function getOutstandingInvoices(team) {
+      return team.invoicesList.filter((invoice) => ["unpaid", "suspended", "grace", "resolved"].includes(invoice.statusKey));
+    }
+
+    function renderStatusChips() {
+      statusFilters.innerHTML = statusChips.map((chip) => `
+        <button class="chip ${chip.className} ${selectedStatus === chip.key ? "selected" : ""}" data-status="${chip.key}">
+          <span class="chip-dot" style="background:${chip.dot}"></span>
+          <span>${chip.label}</span>
+        </button>
+      `).join("");
+      statusFilters.querySelectorAll("[data-status]").forEach((button) => {
+        button.addEventListener("click", () => {
+          selectedStatus = button.dataset.status;
+          statusLabel.textContent = selectedStatus === "all"
+            ? "All Statuses"
+            : statusChips.find((chip) => chip.key === selectedStatus).label;
+          render();
+        });
+      });
+    }
+
+    function statusBadge(status, key) {
+      return `<span class="status-badge ${key}"><span class="chip-dot" style="background:currentColor"></span>${status}</span>`;
+    }
+
+    function renderTeamTable() {
+      const rows = filteredTeams();
+      teamTableBody.innerHTML = rows.map((team) => `
+        <tr data-team-id="${team.id}" class="${team.id === selectedTeamId ? "selected" : ""}">
+          <td><span class="checkbox" aria-hidden="true"></span></td>
+          <td><span class="team-id">${team.id}</span></td>
+          <td class="team-cell">
+            <strong>${team.name}</strong>
+            <div class="table-subtext">${team.email}</div>
+          </td>
+          <td>${team.invoices}</td>
+          <td>${statusBadge(team.status, team.statusKey)}</td>
+          <td>${team.agent}</td>
+          <td><span class="amount">${team.totalUnpaid}</span></td>
+          <td>
+            ${team.unpaidSince}
+            <div class="table-subtext">${team.overdueDays ? `${team.overdueDays} days overdue` : "No overdue balance"}</div>
+          </td>
+          <td>${team.note}</td>
+          <td>
+            <div class="table-actions">
+              <button class="view-btn" data-view="${team.id}">👁 View</button>
+              <button class="more-btn" data-menu="${team.id}" aria-label="More actions">⋯</button>
+              <div class="menu-panel" id="menu-${CSS.escape(team.id)}">
+                <button>View Team</button>
+                <button>View All Invoices</button>
+                <button>Add Internal Note</button>
+                <button>Send Payment Reminder</button>
+                <button>Download Invoice</button>
+                <button>Copy Team ID</button>
+                <button>Open Team Dashboard</button>
+                <div class="menu-divider"></div>
+                <button>Assign Agent</button>
+                <button>Change Assigned Agent</button>
+                <div class="menu-divider"></div>
+                <button ${team.actions.markPaid ? "" : "disabled"}>Mark as Paid</button>
+                <button ${team.actions.grace ? "" : "disabled"}>Set Grace Period</button>
+                <button ${team.actions.resolve ? "" : "disabled"}>Temporarily Resolve</button>
+                <button ${team.actions.restore ? "" : "disabled"}>Restore to Unpaid</button>
+                <button ${team.actions.suspend ? "" : "disabled"}>Suspend Team</button>
+                <div class="menu-divider"></div>
+                <button class="menu-danger" data-confirm="Remove ${team.name} next month?" ${team.actions.remove ? "" : "disabled"}>Remove Next Month</button>
+                <button class="menu-danger" data-confirm="Terminate ${team.name}? This should require a final review." ${team.actions.terminate ? "" : "disabled"}>Terminate Team</button>
+              </div>
+            </div>
+          </td>
+        </tr>
+      `).join("");
+
+      feedback.innerHTML = "";
+      if (!rows.length) {
+        const stateMarkup = searchQuery
+          ? `<div class="no-results-state"><h3>No matching teams</h3><p>Try a different team name, Team ID, email, invoice ID, or status filter.</p></div>`
+          : `<div class="empty-state"><h3>No teams in this state</h3><p>Select another status filter or clear filters to see more billing records.</p></div>`;
+        feedback.innerHTML = stateMarkup;
+      }
+
+      const total = rows.length;
+      resultsCount.textContent = total ? `Showing 1-${total} of 29 results` : "Showing 0 of 29 results";
+      if (!rows.find((team) => team.id === selectedTeamId) && rows[0]) {
+        selectedTeamId = rows[0].id;
+      }
+
+      teamTableBody.querySelectorAll("tr[data-team-id]").forEach((row) => {
+        row.addEventListener("click", (event) => {
+          if (event.target.closest(".menu-panel") || event.target.closest("[data-menu]")) return;
+          selectedTeamId = row.dataset.teamId;
+          render();
+        });
+      });
+
+      teamTableBody.querySelectorAll("[data-view]").forEach((button) => {
+        button.addEventListener("click", (event) => {
+          event.stopPropagation();
+          selectedTeamId = button.dataset.view;
+          render();
+        });
+      });
+
+      teamTableBody.querySelectorAll("[data-menu]").forEach((button) => {
+        button.addEventListener("click", (event) => {
+          event.stopPropagation();
+          const panel = button.parentElement.querySelector(".menu-panel");
+          document.querySelectorAll(".menu-panel.open").forEach((menu) => {
+            if (menu !== panel) menu.classList.remove("open");
+          });
+          panel.classList.toggle("open");
+        });
+      });
+
+      teamTableBody.querySelectorAll("[data-confirm]").forEach((button) => {
+        button.addEventListener("click", (event) => {
+          event.stopPropagation();
+          window.confirm(button.dataset.confirm);
+        });
+      });
+    }
+
+    function renderBillsTable() {
+      const invoiceRows = teams.flatMap((team) => team.invoicesList.map((invoice) => ({ team, invoice })));
+      billsTableBody.innerHTML = invoiceRows.map(({ team, invoice }) => `
+        <tr>
+          <td><span class="checkbox"></span></td>
+          <td><span class="invoice-id">${invoice.id}</span></td>
+          <td><span class="team-id">${team.id}</span></td>
+          <td class="team-cell">
+            <strong>${team.name}</strong>
+            <div class="table-subtext">${team.email}</div>
+          </td>
+          <td>${invoice.period}</td>
+          <td>${invoice.created}</td>
+          <td>${invoice.due}</td>
+          <td><span class="amount">${invoice.amount}</span></td>
+          <td>${statusBadge(invoice.status, invoice.statusKey)}</td>
+          <td>${team.agent}</td>
+          <td>
+            <div class="table-actions">
+              <button class="view-btn">👁 View</button>
+              <button class="more-btn">⋯</button>
+            </div>
+          </td>
+        </tr>
+      `).join("");
+    }
+
+    function renderProfile(team) {
+      profileCard.innerHTML = `
+        <div class="profile-row">
+          <div class="avatar">${team.initials}</div>
+          <div>
+            <strong>${team.name}</strong>
+            <div style="margin-top:6px;">${statusBadge(team.status, team.statusKey)}</div>
+          </div>
+        </div>
+        <div class="drawer-meta">${team.email}</div>
+        <div class="drawer-meta" style="margin-top:6px;">Managed by: ${team.managedBy}</div>
+      `;
+      document.querySelector('[data-drawer-tab="invoices"]').textContent = `Invoices (${getOutstandingInvoices(team).length})`;
+    }
+
+    function renderOverview(team) {
+      overviewPanel.innerHTML = `
+        <div class="detail-section">
+          <div class="meta-label">Total Unpaid Amount</div>
+          <div class="drawer-total" style="font-size:30px;font-weight:700;margin-top:10px;">${team.totalUnpaid}</div>
+        </div>
+        <div class="detail-section">
+          <div class="meta-list">
+            <div class="meta-item">
+              <div class="meta-icon">📅</div>
+              <div>
+                <div class="meta-label">Unpaid Since</div>
+                <strong>${team.unpaidSince}</strong>
+                <div class="drawer-meta">${team.overdueDays ? `${team.overdueDays} days overdue` : "No overdue days"}</div>
+              </div>
+            </div>
+            <div class="meta-item">
+              <div class="meta-icon">🧾</div>
+              <div>
+                <div class="meta-label">Last Invoice</div>
+                <strong>${team.lastInvoice}</strong>
+              </div>
+            </div>
+            <div class="meta-item">
+              <div class="meta-icon">🖥</div>
+              <div>
+                <div class="meta-label">Linked Servers</div>
+                <strong>${team.linkedServers} servers</strong>
+              </div>
+            </div>
+          </div>
+          <div class="stack-actions">
+            <button class="primary-button">Send Reminder</button>
+            <button class="ghost-button">Temporarily Resolve</button>
+            <button class="danger-ghost">Remove Next Month</button>
+          </div>
+        </div>
+      `;
+    }
+
+    function renderInvoices(team) {
+      const outstandingInvoices = getOutstandingInvoices(team);
+      const oldest = outstandingInvoices.reduce((acc, invoice) => acc < invoice.due ? acc : invoice.due, outstandingInvoices[0]?.due || "N/A");
+      invoicesPanel.innerHTML = `
+        <div class="summary-inline">
+          <div><span class="mini-label">Total unpaid amount</span><br><strong>${team.totalUnpaid}</strong></div>
+          <div><span class="mini-label">Unpaid invoices</span><br><strong>${outstandingInvoices.length}</strong></div>
+          <div><span class="mini-label">Oldest unpaid date</span><br><strong>${oldest}</strong></div>
+        </div>
+        ${outstandingInvoices.length ? outstandingInvoices.map((invoice) => `
+          <article class="invoice-card">
+            <div class="invoice-top">
+              <strong>${invoice.id}</strong>
+              ${statusBadge(invoice.status, invoice.statusKey)}
+            </div>
+            <div class="invoice-grid">
+              <div><div class="mini-label">Billing period</div><strong>${invoice.period}</strong></div>
+              <div><div class="mini-label">Invoice creation date</div><strong>${invoice.created}</strong></div>
+              <div><div class="mini-label">Due date</div><strong>${invoice.due}</strong></div>
+              <div><div class="mini-label">Overdue</div><strong>${invoice.overdue ? `${invoice.overdue} days` : "0 days"}</strong></div>
+              <div><div class="mini-label">Amount</div><strong>${invoice.amount}</strong></div>
+              <div><div class="mini-label">Related service</div><strong>${invoice.service}</strong></div>
+            </div>
+            <div class="invoice-actions">
+              <button class="view-btn">View Invoice</button>
+              <div>
+                <button class="text-btn">⤓ Download</button>
+                <button class="more-btn">⋯</button>
+              </div>
+            </div>
+          </article>
+        `).join("") : `<div class="empty-state"><h3>No unpaid invoices</h3><p>This team does not currently have unpaid invoices to review in the drawer.</p></div>`}
+      `;
+    }
+
+    function renderNotes(team) {
+      notesPanel.innerHTML = `
+        <div class="timeline">
+          ${team.notes.map((note) => `
+            <div class="note-item">
+              <div class="avatar small">${note.type === "system" ? "S" : note.initials}</div>
+              <div class="note-bubble ${note.type === "system" ? "system" : ""}">
+                <div class="note-header">
+                  <div>
+                    <strong>${note.author}</strong>
+                    <span class="muted"> ${note.role ? `· ${note.role}` : ""}</span>
+                  </div>
+                  <small>${note.time}</small>
+                </div>
+                <div style="margin-top:8px; line-height:1.55;">${note.message}</div>
+                ${note.statusLabel ? `<div class="status-pill">${note.statusLabel}</div>` : ""}
+                ${note.edited ? `<div class="inline-note"><small>Edited</small></div>` : ""}
+              </div>
+            </div>
+          `).join("")}
+        </div>
+      `;
+    }
+
+    function renderDrawer() {
+      const team = filteredTeams().find((item) => item.id === selectedTeamId) || filteredTeams()[0] || teams[0];
+      if (!team) return;
+      selectedTeamId = team.id;
+      renderProfile(team);
+      renderOverview(team);
+      renderInvoices(team);
+      renderNotes(team);
+      document.querySelectorAll("[data-drawer-panel]").forEach((panel) => {
+        panel.classList.toggle("active", panel.dataset.drawerPanel === selectedDrawerTab);
+      });
+      document.querySelectorAll(".drawer-tab").forEach((tab) => {
+        tab.classList.toggle("active", tab.dataset.drawerTab === selectedDrawerTab);
+      });
+      drawerComposer.classList.toggle("hidden", selectedDrawerTab !== "notes");
+    }
+
+    function render() {
+      renderStatusChips();
+      renderTeamTable();
+      renderDrawer();
+      renderBillsTable();
+    }
+
+    teamSearch.addEventListener("input", (event) => {
+      searchQuery = event.target.value.trim();
+      render();
+    });
+
+    document.getElementById("clearFilters").addEventListener("click", () => {
+      searchQuery = "";
+      selectedStatus = "all";
+      teamSearch.value = "";
+      statusLabel.textContent = "All Statuses";
+      render();
+    });
+
+    document.querySelectorAll("[data-main-tab]").forEach((tab) => {
+      tab.addEventListener("click", () => {
+        const key = tab.dataset.mainTab;
+        document.querySelectorAll("[data-main-tab]").forEach((item) => item.classList.toggle("active", item === tab));
+        document.querySelectorAll("[data-main-panel]").forEach((panel) => {
+          panel.classList.toggle("active", panel.dataset.mainPanel === key);
+        });
+      });
+    });
+
+    document.querySelectorAll(".drawer-tab").forEach((tab) => {
+      tab.addEventListener("click", () => {
+        selectedDrawerTab = tab.dataset.drawerTab;
+        renderDrawer();
+      });
+    });
+
+    document.getElementById("closeDrawer").addEventListener("click", () => {
+      document.querySelector(".drawer").style.visibility = "hidden";
+      document.querySelector(".drawer").style.pointerEvents = "none";
+      document.querySelector(".drawer").style.width = "0";
+      document.querySelector(".drawer").style.minWidth = "0";
+      document.querySelector(".drawer").style.overflow = "hidden";
+      document.querySelector(".table-pane").style.borderRight = "0";
+    });
+
+    document.addEventListener("click", (event) => {
+      if (!event.target.closest(".table-actions")) {
+        document.querySelectorAll(".menu-panel.open").forEach((menu) => menu.classList.remove("open"));
+      }
+    });
+
+    function reopenDrawer() {
+      const drawer = document.querySelector(".drawer");
+      drawer.style.visibility = "visible";
+      drawer.style.pointerEvents = "auto";
+      drawer.style.width = "var(--drawer-width)";
+      drawer.style.minWidth = "";
+      drawer.style.overflow = "";
+      document.querySelector(".table-pane").style.borderRight = "";
+    }
+
+    teamTableBody.addEventListener("click", (event) => {
+      if (event.target.closest("tr") || event.target.closest("[data-view]")) {
+        reopenDrawer();
+      }
+    });
+
+    render();
+  </script>
+</body>
+</html>

@@ -1,0 +1,32 @@
+@import 'tailwindcss';
+
+@source '../../vendor/laravel/framework/src/Illuminate/Pagination/resources/views/*.blade.php';
+@source '../../storage/framework/views/*.php';
+@source '../views/**/*.blade.php';
+@source '../js/**/*.{js,vue}';
+
+@theme {
+    --font-sans: 'Instrument Sans', ui-sans-serif, system-ui, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji',
+        'Segoe UI Symbol', 'Noto Color Emoji';
+}
+
+@layer base {
+    body {
+        @apply bg-slate-100 font-sans text-slate-950 antialiased;
+    }
+
+    button,
+    [role='button'] {
+        @apply cursor-pointer;
+    }
+}
+
+@layer components {
+    .surface-card {
+        @apply rounded-3xl border border-slate-200 bg-white shadow-[0_12px_40px_rgba(15,23,42,0.06)];
+    }
+
+    .soft-ring {
+        @apply border border-slate-200 bg-white shadow-[0_1px_0_rgba(255,255,255,0.7)];
+    }
+}
